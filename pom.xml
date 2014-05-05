@@ -11,6 +11,7 @@
 		<module>roboguice</module>
 		<module>additional-tests</module>
 		<module>astroboy</module>
+		<module>afterburner</module>
 	</modules>
 
 	<parent>
