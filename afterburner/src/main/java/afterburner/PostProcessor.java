@@ -24,19 +24,18 @@ import com.github.drochetti.javassist.maven.ClassTransformer;
 public class PostProcessor extends ClassTransformer {
 
     @Override
+    protected boolean filter(CtClass candidateClass) throws Exception {
+        boolean isActivity = candidateClass.subclassOf(ClassPool.getDefault().get(Activity.class.getName()));
+        boolean hasAfterBurner = checkIfAfterBurnerAlreadyActive(candidateClass);
+        return isActivity && !hasAfterBurner;
+    }    
+
+    @Override
     protected void applyTransformations(final CtClass classToTransform) throws Exception {
         // Actually you must test if it exists, but it's just an example...
         getLogger().debug("Analysing "+classToTransform);
         injectStuffInClass(classToTransform);
     }
-
-    @Override
-    protected boolean filter(CtClass candidateClass) throws Exception {
-        boolean isActivity = candidateClass.subclassOf(ClassPool.getDefault().get(Activity.class.getName()));
-        boolean hasAfterBurner = checkIfAfterBurnerAlreadyActive(candidateClass);
-
-        return isActivity && !hasAfterBurner;
-    }    
 
     private void injectStuffInClass(final CtClass classToTransform) throws NotFoundException, ClassNotFoundException, CannotCompileException {
         int layoutId = getLayoutId(classToTransform);
@@ -47,10 +46,13 @@ public class PostProcessor extends ClassTransformer {
         }
         CtMethod onCreateMethod = extractOnCreateMethod(classToTransform);
         if( onCreateMethod != null ) {
-            DetectMethodCallEditor dectedSetContentViewEditor = new DetectMethodCallEditor(classToTransform, "setContentView");
-            onCreateMethod.instrument(dectedSetContentViewEditor);
-            boolean isCallingSetContentView = dectedSetContentViewEditor.isCallingMethod();
-            InjectorEditor injectorEditor = new InjectorEditor(classToTransform, fragments, views, layoutId, isCallingSetContentView);
+            boolean isCallingSetContentView = checkIfMethodIsInvoked(classToTransform, onCreateMethod, "setContentView");
+            String insertionMethod = "onCreate";
+            if( isCallingSetContentView ) {
+                layoutId = -1;
+                insertionMethod = "setContentView";
+            }
+            InjectorEditor injectorEditor = new InjectorEditor(classToTransform, fragments, views, layoutId, insertionMethod);
             onCreateMethod.instrument( injectorEditor);
         } else {
             classToTransform.addMethod( CtNewMethod.make(createOnCreateBody(classToTransform, views, fragments, layoutId)
@@ -60,10 +62,17 @@ public class PostProcessor extends ClassTransformer {
         injectStuffInClass( classToTransform.getSuperclass() );
     }
 
-    private String createOnCreateBody(CtClass classToTransform, List<CtField> views, List<CtField> fragments, int layoutId) throws ClassNotFoundException, NotFoundException {
+    private boolean checkIfMethodIsInvoked(final CtClass clazz, CtMethod withinMethod, String invokedMEthod) throws CannotCompileException {
+        DetectMethodCallEditor dectectSetContentViewEditor = new DetectMethodCallEditor(clazz, invokedMEthod);
+        withinMethod.instrument(dectectSetContentViewEditor);
+        boolean isCallingSetContentView = dectectSetContentViewEditor.isCallingMethod();
+        return isCallingSetContentView;
+    }
+
+    private String createOnCreateBody(CtClass clazz, List<CtField> views, List<CtField> fragments, int layoutId) throws ClassNotFoundException, NotFoundException {
         return "public void onCreate(android.os.Bundle bundle) { \n"
                 + "super.onCreate(bundle);\n"
-                + createInjectedBody(classToTransform, views, fragments, layoutId, false)
+                + createInjectedBody(clazz, views, fragments, layoutId)
                 + "}";
 
     }
@@ -155,12 +164,12 @@ public class PostProcessor extends ClassTransformer {
         return result;
     }
 
-    private String createInjectedBody(CtClass classToTransform, List<CtField> views, List<CtField> fragments, int layoutId, boolean isCallingSetContentView) throws ClassNotFoundException, NotFoundException {
+    private String createInjectedBody(CtClass classToTransform, List<CtField> views, List<CtField> fragments, int layoutId) throws ClassNotFoundException, NotFoundException {
         StringBuffer buffer = new StringBuffer();
         String message = String.format("Class %s has been enhanced.", classToTransform.getName());
         buffer.append("android.util.Log.d(\"RoboGuice post-processor\",\""+message+"\");\n");
 
-        if( layoutId != -1 && !isCallingSetContentView ) { 
+        if( layoutId != -1 ) { 
             buffer.append(injectContentView(layoutId));
         }
         if( !views.isEmpty() ) {
@@ -179,26 +188,25 @@ public class PostProcessor extends ClassTransformer {
         private final List<CtField> fragments;
         private final List<CtField> views;
         private final int layoutId;
-        private boolean isCallingSetContentView;
+        private String insertionMethod;
 
-        private InjectorEditor(CtClass classToTransform, List<CtField> fragments, List<CtField> views, int layoutId, boolean isCallingSetContentView) {
+        private InjectorEditor(CtClass classToTransform, List<CtField> fragments, List<CtField> views, int layoutId, String insertionMethod) {
             this.classToTransform = classToTransform;
             this.fragments = fragments;
             this.views = views;
             this.layoutId = layoutId;
-            this.isCallingSetContentView = isCallingSetContentView;
+            this.insertionMethod = insertionMethod;
         }
 
         @Override
         public void edit(MethodCall m) throws CannotCompileException {
             try {
                 getLogger().debug("method call "+m.getMethodName());
-                String insertionMethod = isCallingSetContentView ? "setContentView" : "onCreate";
                 if( m.getMethodName().equals(insertionMethod) ) {
                     getLogger().debug("insertion method "+m.getMethodName());
 
                     String string;
-                    string = "$_ = $proceed($$);\n"+createInjectedBody(m.getEnclosingClass(), views, fragments, layoutId, isCallingSetContentView );
+                    string = "$_ = $proceed($$);\n"+createInjectedBody(m.getEnclosingClass(), views, fragments, layoutId );
                     getLogger().debug("Injected : " + string);
 
                     m.replace(string );
