@@ -56,29 +56,14 @@
 			<version>${android-platform.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.android.maps</groupId>
-			<artifactId>maps</artifactId>
-			<version>${android-map.version}</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
 			<groupId>android.support</groupId>
 			<artifactId>compatibility-v4</artifactId>
 			<version>${android-support-v4.version}</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>android.support</groupId>
 			<artifactId>compatibility-v7-appcompat</artifactId>
 			<version>${android-appcompat-v7.version}</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.actionbarsherlock</groupId>
-			<artifactId>actionbarsherlock</artifactId>
-			<version>${actionbarsherlock.version}</version>
-			<type>jar</type>
-			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
