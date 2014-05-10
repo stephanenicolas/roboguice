@@ -88,6 +88,7 @@ public class PostProcessor extends ClassTransformer {
         }
         classToTransform.detach();
         injectStuffInActivity(classToTransform.getSuperclass());
+        injectStuffInFragment(classToTransform.getSuperclass());
     }
 
     private boolean checkIfMethodIsInvoked(final CtClass clazz, CtMethod withinMethod, String invokedMEthod) throws CannotCompileException {
