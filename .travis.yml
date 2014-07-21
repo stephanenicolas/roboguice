@@ -19,4 +19,4 @@ android:
 
 script:
     - echo "Travis branch is $TRAVIS_BRANCH"
-    - if [ "$TRAVIS_BRANCH" == "master" -a "TRAVIS_PULL_REQUEST" == "false" ] ; then mvn deploy -P guice --settings target/travis/settings.xml ; else mvn install -Pguice --settings target/travis/settings.xml ; fi
+    - if [ "$TRAVIS_BRANCH" == "master" -a "TRAVIS_PULL_REQUEST" == "false" ] ; then mvn deploy --settings target/travis/settings.xml ; else mvn install --settings target/travis/settings.xml ; fi
