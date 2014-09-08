@@ -241,6 +241,14 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+						    <filters>
+							  <filter>
+							    <artifact>com.google.inject:guice</artifact>
+							    <includes>
+							      <include>com/google/inject/**</include>
+							    </includes>
+							  </filter>
+							</filters>
 							<minimizeJar>true</minimizeJar>
 						</configuration>
 					</execution>

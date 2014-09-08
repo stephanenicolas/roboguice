@@ -39,7 +39,6 @@ import roboguice.util.RoboContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Key;
-import com.google.inject.internal.util.Stopwatch;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -82,21 +81,14 @@ public class RoboActivity extends Activity implements RoboContext {
     protected HashMap<Key<?>,Object> scopedObjects = new HashMap<Key<?>, Object>();
 
     @Inject ContentViewListener ignored; // BUG find a better place to put this
-    private Stopwatch stopwatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        stopwatch = new Stopwatch();
         final RoboInjector injector = RoboGuice.getInjector(this);
-        stopwatch.resetAndLog("RoboActivity creation of injector");
         eventManager = injector.getInstance(EventManager.class);
-        stopwatch.resetAndLog("RoboActivity creation of eventmanager");
         injector.injectMembersWithoutViews(this);
-        stopwatch.resetAndLog("RoboActivity inject members without views");
         super.onCreate(savedInstanceState);
-        stopwatch.resetAndLog("RoboActivity super onCreate");
         eventManager.fire(new OnCreateEvent<Activity>(this,savedInstanceState));
-        stopwatch.resetAndLog("RoboActivity fire event");
     }
 
     @Override

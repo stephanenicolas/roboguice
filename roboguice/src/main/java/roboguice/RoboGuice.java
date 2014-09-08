@@ -24,7 +24,6 @@ import com.google.inject.Stage;
 import com.google.inject.HierarchyTraversalFilter;
 import com.google.inject.HierarchyTraversalFilterFactory;
 import com.google.inject.Module;
-import com.google.inject.internal.util.Stopwatch;
 import com.google.inject.util.Modules;
 
 import android.app.Application;
@@ -109,10 +108,9 @@ public final class RoboGuice {
      * <b>One of RoboGuice's entry points</b>.
      */
     public static Injector getOrCreateBaseApplicationInjector(final Application application, Stage stage, Module... modules ) {
-        final Stopwatch stopwatch = new Stopwatch();
         synchronized (RoboGuice.class) {
             initializeAnnotationDatabaseFinderAndHierarchyTraversalFilterFactory(application);
-            return createGuiceInjector(application, stage, stopwatch, modules);
+            return createGuiceInjector(application, stage, modules);
         }
     }
 
@@ -144,12 +142,11 @@ public final class RoboGuice {
      * <b>One of RoboGuice's entry points</b>.
      */
     public static Injector getOrCreateBaseApplicationInjector(Application application, Stage stage) {
-        final Stopwatch stopwatch = new Stopwatch();
 
         synchronized (RoboGuice.class) {
             initializeAnnotationDatabaseFinderAndHierarchyTraversalFilterFactory(application);
             final List<Module> modules = extractModulesFromManifest(application);
-            return createGuiceInjector(application, stage, stopwatch, modules.toArray(new Module[modules.size()]));
+            return createGuiceInjector(application, stage, modules.toArray(new Module[modules.size()]));
         }
     }
 
@@ -181,15 +178,11 @@ public final class RoboGuice {
         }  
     }
 
-    private static Injector createGuiceInjector(final Application application, Stage stage, final Stopwatch stopwatch, Module... modules) {
-        try {
-            synchronized (RoboGuice.class) {
-                final Injector rtrn = Guice.createInjector(stage, modules);
-                injectors.put(application,rtrn);
-                return rtrn;
-            }
-        } finally {
-            stopwatch.resetAndLog("BaseApplicationInjector creation");
+    private static Injector createGuiceInjector(final Application application, Stage stage, Module... modules) {
+        synchronized (RoboGuice.class) {
+            final Injector rtrn = Guice.createInjector(stage, modules);
+            injectors.put(application,rtrn);
+            return rtrn;
         }
     }
 
