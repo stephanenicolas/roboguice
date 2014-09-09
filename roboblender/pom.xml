@@ -15,14 +15,13 @@
 
 	<properties>
 		<velocity.version>1.7</velocity.version>
-		<blender.version>3.0-SNAPSHOT</blender.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>blender</artifactId>
-			<version>${blender.version}</version>
+			<version>${guice.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -66,6 +65,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
