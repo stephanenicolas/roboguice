@@ -9,3 +9,6 @@ script:
     - echo "Travis branch is $TRAVIS_BRANCH"
     - echo "Travis branch is in pull request $TRAVIS_PULL+REQUEST"
     - mvn clean install
+
+after_failure: 
+    - more guice/core/target/surefire-reports
