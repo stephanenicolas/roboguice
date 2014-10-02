@@ -5,7 +5,6 @@ import org.roboguice.astroboy.controller.AstroboyRemoteControl;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -17,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.github.stephanenicolas.injectview.InjectView;
 import com.google.inject.Inject;
 
 /**
