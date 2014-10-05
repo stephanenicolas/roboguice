@@ -49,6 +49,11 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
+  compile ("com.github.stephanenicolas.injectextra:injectextra-plugin:1.+")
+  compile ("com.github.stephanenicolas.injectresource:injectresource-plugin:1.+")
+  compile ("com.github.stephanenicolas.injectview:injectview-plugin:1.+")
+
+
   compile "org.projectlombok:lombok:1.14.2"
   compile "com.google.android:android:${ANDROID_VERSION}"
 
