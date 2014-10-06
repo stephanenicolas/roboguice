@@ -38,13 +38,6 @@ public class CustomView extends LinearLayout {
     @Override
     protected void onFinishInflate() {
     	super.onFinishInflate();
-        RoboGuice.getInjector(getContext()).injectMembersWithoutViews(this);
-        RoboGuice.getInjector(getContext()).injectViewMembers(this);
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
         buttonCloseTv.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {

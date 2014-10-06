@@ -15,6 +15,9 @@ public class RoboGuicePlugin implements Plugin<Project> {
   public void apply(Project project) {
     def hasApp = project.plugins.withType(AppPlugin)
     def hasLib = project.plugins.withType(LibraryPlugin)
+    if(!hasApp && !hasLib) {
+      throw new IllegalStateException("Project is not android lib or app project. Roboguice plugin can't be applied.")
+    }
 
     def extension = getExtension()
     def pluginExtension = getPluginExtension()
@@ -28,9 +31,6 @@ public class RoboGuicePlugin implements Plugin<Project> {
     configure(project)
     log.debug(LOG_TAG, "Project variant configured for RoboGuice.")
 
-    if(!hasApp || !hasLib) {
-      log.debug(LOG_TAG, "Project is not android lib or app project. Roboguice plugin can't be applied.")
-    }
     final def variants
     if (hasApp) {
       variants = project.android.applicationVariants
@@ -38,14 +38,7 @@ public class RoboGuicePlugin implements Plugin<Project> {
       variants = project.android.libraryVariants
     }
 
-
-
-
     variants.all { variant ->
-      if (skipVariant(variant)) {
-        return;
-      }
-
       variant.javaCompile.options.compilerArgs += [
           '-s', project.file('build/generated')
       ]
