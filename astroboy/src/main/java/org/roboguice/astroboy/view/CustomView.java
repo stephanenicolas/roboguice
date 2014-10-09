@@ -39,13 +39,11 @@ public class CustomView extends LinearLayout {
     protected void onFinishInflate() {
     	super.onFinishInflate();
         buttonCloseTv.setOnClickListener(new OnClickListener() {
-
             public void onClick(View v) {
                 textviewStatus.setText("Closed");
             }
         });
         textviewStatus.setOnClickListener(new OnClickListener() {
-
             public void onClick(View v) {
                 textviewStatus.setText("Open");
             }

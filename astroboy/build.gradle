@@ -88,7 +88,7 @@ dependencies {
 
 
 
-/*
+
 //this is needed if you use robolectric and want to use injection of extras in test.
 //TODO make it easier
 import com.github.stephanenicolas.injectextra.InjectExtraProcessor;
@@ -133,7 +133,7 @@ gradle.projectsEvaluated {
     }
   }
 }
-*/
+
 
 check.dependsOn test
 
