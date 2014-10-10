@@ -48,6 +48,10 @@ android {
   }
 }
 
+roboguice {
+ annotationDatabasePackageName = "org.roboguice.astroboy"
+}
+
 apply plugin: 'android-unit-test'
 
 dependencies {
