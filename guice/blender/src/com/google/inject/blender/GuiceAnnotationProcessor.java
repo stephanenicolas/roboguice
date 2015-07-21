@@ -76,7 +76,7 @@ public class GuiceAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         // Not sure why, but sometimes we're getting called with an empty list of annotations.
         if(annotations.isEmpty())
-            return true;
+            return false;
 
         for( TypeElement annotation : annotations ) {
             String annotationClassName = getTypeName(annotation);
@@ -123,10 +123,10 @@ public class GuiceAnnotationProcessor extends AbstractProcessor {
             annotationDatabaseGenerator.generateAnnotationDatabase(jfo);
         } catch (IOException e) {
             e.printStackTrace();
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            //processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
 
-        return true;
+        return false;
     }
 
     protected AnnotationDatabaseGenerator createAnnotationDatabaseGenerator() {

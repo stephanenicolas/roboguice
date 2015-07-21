@@ -16,7 +16,12 @@
 			<groupId>org.roboguice</groupId>
 			<artifactId>roboblender</artifactId>
 			<version>${project.version}</version>
-			<optional>true</optional>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.reflection_no_reflection</groupId>
+			<artifactId>generator</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- TEST DEPENDENCIES -->
@@ -44,7 +49,22 @@
 			<groupId>org.roboguice</groupId>
 			<artifactId>roboguice</artifactId>
 			<version>${project.version}</version>
-		</dependency>
+      <exclusions>
+        <exclusion>  <!-- declare the exclusion here -->
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
+        </exclusion>
+        <exclusion>  <!-- declare the exclusion here -->
+          <groupId>findbugs</groupId>
+          <artifactId>annotations</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.jakewharton</groupId>
+      <artifactId>butterknife</artifactId>
+      <version>7.0.1</version>
+    </dependency>
 
 		<!-- TEST DEPENDENCIES -->
 		<dependency>
@@ -83,7 +103,16 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-				</configuration>
+          <compilerArgs>
+            <arg>-AtargetAnnotatedClasses=javax.inject.Inject,com.google.inject.Inject</arg>
+            <arg>-AmaxLevel=1</arg>
+            <arg>-AtargetPackageName=org.reflection_no_reflection.generator.sample.gen</arg>
+            <arg>-Aintrospector.includes=org.roboguice.astroboy.*</arg>
+            <arg>-Aintrospector.excludes=java\\..*,javax.inject.Inject</arg>
+            <arg>-Amodule.enabled=false</arg>
+            <arg>-Aannotation.enabled=false</arg>
+          </compilerArgs>
+        </configuration>
 			</plugin>
 		</plugins>
 

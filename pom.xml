@@ -33,7 +33,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.6</java.version>
+		<java.version>1.7</java.version>
 
 		<!-- PLUGINS -->
 		<android-maven-plugin.version>3.8.2</android-maven-plugin.version>
@@ -334,7 +334,7 @@
 				<module>roboblender</module>
 				<module>roboguice</module>
 				<module>additional-tests</module>
-				<!-- <module>astroboy</module> -->
+				<module>astroboy</module>
 			</modules>
 		</profile>
 	</profiles>

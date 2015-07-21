@@ -60,11 +60,11 @@ public class InjectionPointTest extends TestCase {
     TypeLiteral<?> typeLiteral = TypeLiteral.get(getClass());
     Field fooField = getClass().getField("foo");
 
-    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, fooField, false);
+    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, fooField, false, null);
     assertSame(fooField, injectionPoint.getMember());
     assertFalse(injectionPoint.isOptional());
     assertEquals(getClass().getName() + ".foo", injectionPoint.toString());
-    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, fooField, false));
+    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, fooField, false, null));
     assertNotSerializable(injectionPoint);
 
     Dependency<?> dependency = getOnlyElement(injectionPoint.getDependencies());
@@ -76,18 +76,18 @@ public class InjectionPointTest extends TestCase {
     assertFalse(dependency.isNullable());
     assertNotSerializable(dependency);
     assertEqualsBothWays(dependency,
-        getOnlyElement(new InjectionPoint(typeLiteral, fooField, false).getDependencies()));
+        getOnlyElement(new InjectionPoint(typeLiteral, fooField, false, null).getDependencies()));
   }
 
   public void testMethodInjectionPoint() throws Exception {
     TypeLiteral<?> typeLiteral = TypeLiteral.get(getClass());
 
     Method barMethod = getClass().getMethod("bar", String.class);
-    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, barMethod, false);
+    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, barMethod, false, null);
     assertSame(barMethod, injectionPoint.getMember());
     assertFalse(injectionPoint.isOptional());
     assertEquals(getClass().getName() + ".bar()", injectionPoint.toString());
-    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, barMethod, false));
+    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, barMethod, false, null));
     assertNotSerializable(injectionPoint);
 
     Dependency<?> dependency = getOnlyElement(injectionPoint.getDependencies());
@@ -99,7 +99,7 @@ public class InjectionPointTest extends TestCase {
     assertFalse(dependency.isNullable());
     assertNotSerializable(dependency);
     assertEqualsBothWays(dependency,
-        getOnlyElement(new InjectionPoint(typeLiteral, barMethod, false).getDependencies()));
+        getOnlyElement(new InjectionPoint(typeLiteral, barMethod, false, null).getDependencies()));
   }
 
   public void testConstructorInjectionPoint() throws NoSuchMethodException, IOException,
@@ -107,11 +107,11 @@ public class InjectionPointTest extends TestCase {
     TypeLiteral<?> typeLiteral = TypeLiteral.get(Constructable.class);
 
     Constructor<?> constructor = Constructable.class.getConstructor(String.class);
-    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, constructor);
+    InjectionPoint injectionPoint = new InjectionPoint(typeLiteral, constructor, null);
     assertSame(constructor, injectionPoint.getMember());
     assertFalse(injectionPoint.isOptional());
     assertEquals(Constructable.class.getName() + ".<init>()", injectionPoint.toString());
-    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, constructor));
+    assertEqualsBothWays(injectionPoint, new InjectionPoint(typeLiteral, constructor, null));
     assertNotSerializable(injectionPoint);
 
     Dependency<?> dependency = getOnlyElement(injectionPoint.getDependencies());
@@ -123,7 +123,7 @@ public class InjectionPointTest extends TestCase {
     assertFalse(dependency.isNullable());
     assertNotSerializable(dependency);
     assertEqualsBothWays(dependency,
-        getOnlyElement(new InjectionPoint(typeLiteral, constructor).getDependencies()));
+        getOnlyElement(new InjectionPoint(typeLiteral, constructor, null).getDependencies()));
   }
 
   public void testUnattachedDependency() throws IOException {
@@ -175,8 +175,8 @@ public class InjectionPointTest extends TestCase {
 
     TypeLiteral<HasInjections> type = TypeLiteral.get(HasInjections.class);
     assertEquals(ImmutableSet.of(
-        new InjectionPoint(type, instanceMethod, false),
-        new InjectionPoint(type, instanceField, false)),
+        new InjectionPoint(type, instanceMethod, false, null),
+        new InjectionPoint(type, instanceField, false, null)),
         InjectionPoint.forInstanceMethodsAndFields(HasInjections.class));
   }
 
@@ -187,8 +187,8 @@ public class InjectionPointTest extends TestCase {
     Set<InjectionPoint> injectionPoints = InjectionPoint.forStaticMethodsAndFields(
         HasInjections.class);
     assertEquals(ImmutableSet.of(
-        new InjectionPoint(TypeLiteral.get(HasInjections.class), staticMethod, false),
-        new InjectionPoint(TypeLiteral.get(HasInjections.class), staticField, false)),
+        new InjectionPoint(TypeLiteral.get(HasInjections.class), staticMethod, false, null),
+        new InjectionPoint(TypeLiteral.get(HasInjections.class), staticField, false, null)),
         injectionPoints);
   }
 

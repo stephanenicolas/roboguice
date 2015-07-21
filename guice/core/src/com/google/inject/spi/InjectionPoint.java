@@ -50,6 +50,7 @@ import com.google.inject.internal.Errors;
 import com.google.inject.internal.ErrorsException;
 import com.google.inject.internal.Nullability;
 import com.google.inject.internal.util.Classes;
+import org.reflection_no_reflection.runtime.BaseReflector;
 
 /**
  * A constructor, field or method that can receive injections. Typically this is a member with the
@@ -68,27 +69,31 @@ public final class InjectionPoint {
     private final Member member;
     private final TypeLiteral<?> declaringType;
     private final ImmutableList<Dependency<?>> dependencies;
+    private final BaseReflector reflector;
 
 
-    InjectionPoint(TypeLiteral<?> declaringType, Method method, boolean optional) {
+    InjectionPoint(TypeLiteral<?> declaringType, Method method, boolean optional, BaseReflector reflector) {
         member = method;
         this.declaringType = declaringType;
         this.optional = optional;
         dependencies = forMember(method, declaringType, method.getParameterAnnotations());
+        this.reflector = reflector;
     }
 
-    InjectionPoint(TypeLiteral<?> declaringType, Constructor<?> constructor) {
+    InjectionPoint(TypeLiteral<?> declaringType, Constructor<?> constructor, BaseReflector reflector) {
         member = constructor;
         this.declaringType = declaringType;
         optional = false;
         dependencies = forMember(
                 constructor, declaringType, constructor.getParameterAnnotations());
+        this.reflector = reflector;
     }
 
-    InjectionPoint(TypeLiteral<?> declaringType, Field field, boolean optional) {
+    InjectionPoint(TypeLiteral<?> declaringType, Field field, boolean optional, BaseReflector reflector) {
         member = field;
         this.declaringType = declaringType;
         this.optional = optional;
+        this.reflector = reflector;
 
         Annotation[] annotations = field.getAnnotations();
 
@@ -106,6 +111,7 @@ public final class InjectionPoint {
         dependencies = ImmutableList.<Dependency<?>>of(
                 newDependency(key, Nullability.allowsNull(annotations), -1));
     }
+
 
     private ImmutableList<Dependency<?>> forMember(Member member, TypeLiteral<?> type,
             Annotation[][] paramterAnnotations) {
@@ -210,7 +216,20 @@ public final class InjectionPoint {
      * @since 3.0
      */
     public static <T> InjectionPoint forConstructor(Constructor<T> constructor) {
-        return new InjectionPoint(TypeLiteral.get(constructor.getDeclaringClass()), constructor);
+        TypeLiteral<T> declaringType = TypeLiteral.get(constructor.getDeclaringClass());
+        return new InjectionPoint(declaringType, constructor, initReflector(declaringType));
+    }
+
+    private static BaseReflector initReflector(TypeLiteral<?> declaringType) {
+        try {
+            Class c = declaringType.getRawType();
+            Class reflectorClass = Class.forName(c.getName()+"$$Reflector");
+            return (BaseReflector) reflectorClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Reflector could not be created for type " + declaringType);
+            return null;
+        }
     }
 
     /**
@@ -229,7 +248,7 @@ public final class InjectionPoint {
             .throwConfigurationExceptionIfErrorsExist();
         }
 
-        return new InjectionPoint(type, constructor);
+        return new InjectionPoint(type, constructor,initReflector(type));
     }
 
     /**
@@ -277,7 +296,7 @@ public final class InjectionPoint {
         errors.throwConfigurationExceptionIfErrorsExist();
 
         if (injectableConstructor != null) {
-            return new InjectionPoint(type, injectableConstructor);
+            return new InjectionPoint(type, injectableConstructor, initReflector(type));
         }
 
         // If no annotated constructor is found, look for a no-arg constructor instead.
@@ -292,7 +311,7 @@ public final class InjectionPoint {
             }
 
             checkForMisplacedBindingAnnotations(noArgConstructor, errors);
-            return new InjectionPoint(type, noArgConstructor);
+            return new InjectionPoint(type, noArgConstructor, initReflector(type));
         } catch (NoSuchMethodException e) {
             errors.missingConstructor(rawType);
             throw new ConfigurationException(errors.getMessages());
@@ -416,6 +435,10 @@ public final class InjectionPoint {
         return true;
     }
 
+    public BaseReflector getReflector() {
+        return reflector;
+    }
+
     /**
      * Node in the doubly-linked list of injectable members (fields and methods).
      */
@@ -425,10 +448,12 @@ public final class InjectionPoint {
         final boolean jsr330;
         InjectableMember previous;
         InjectableMember next;
+        final BaseReflector reflector;
 
 
-        InjectableMember(TypeLiteral<?> declaringType, Annotation atInject) {
+        InjectableMember(TypeLiteral<?> declaringType, Annotation atInject, BaseReflector reflector) {
             this.declaringType = declaringType;
+            this.reflector = reflector;
 
             if (atInject.annotationType() == javax.inject.Inject.class) {
                 optional = false;
@@ -446,14 +471,14 @@ public final class InjectionPoint {
     static class InjectableField extends InjectableMember {
         final Field field;
         InjectableField(TypeLiteral<?> declaringType, Field field,
-                Annotation atInject) {
-            super(declaringType, atInject);
+                Annotation atInject, BaseReflector reflector) {
+            super(declaringType, atInject, reflector);
             this.field = field;
         }
 
         @Override
         InjectionPoint toInjectionPoint() {
-            return new InjectionPoint(declaringType, field, optional);
+            return new InjectionPoint(declaringType, field, optional, initReflector(declaringType));
         }
     }
 
@@ -466,14 +491,14 @@ public final class InjectionPoint {
          */
         boolean overrodeGuiceInject;
         InjectableMethod(TypeLiteral<?> declaringType, Method method,
-                Annotation atInject) {
-            super(declaringType, atInject);
+                Annotation atInject, BaseReflector reflector) {
+            super(declaringType, atInject, reflector);
             this.method = method;
         }
 
         @Override
         InjectionPoint toInjectionPoint() {
-            return new InjectionPoint(declaringType, method, optional);
+            return new InjectionPoint(declaringType, method, optional, reflector);
         }
 
         public boolean isFinal() {
@@ -730,6 +755,7 @@ public final class InjectionPoint {
         }
 
         Set<Field> allFields = filter.getAllFields(Inject.class.getName(), rawType);
+        BaseReflector reflector = initReflector(type);
         if( allFields != null ) {
         	for( Field field : allFields ) {
         		//System.out.printf("Field %s is injectable in class %s ",field.getName(),rawType.getName());
@@ -737,7 +763,7 @@ public final class InjectionPoint {
         			Annotation atInject = getAtInject(field);
         			if (atInject != null) {
         				//System.out.printf("Field %s is gonna be injected in class %s ",field.getName(),rawType.getName());
-        				InjectableField injectableField = new InjectableField(type, field, atInject);
+        				InjectableField injectableField = new InjectableField(type, field, atInject, reflector);
         				if (injectableField.jsr330 && Modifier.isFinal(field.getModifiers())) {
         					errors.cannotInjectFinalField(field);
         				}
@@ -754,7 +780,7 @@ public final class InjectionPoint {
                     Annotation atInject = getAtInject(method);
                     if (atInject != null) {
                         InjectableMethod injectableMethod = new InjectableMethod(
-                                type, method, atInject);
+                                type, method, atInject, reflector);
                         if (checkForMisplacedBindingAnnotations(method, errors)
                                 || !isValidMethod(injectableMethod, errors)) {
                         	boolean removed = overrideIndex.removeIfOverriddenBy(method, false, injectableMethod);

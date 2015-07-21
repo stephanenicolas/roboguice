@@ -21,6 +21,9 @@ import com.google.inject.spi.Dependency;
 import com.google.inject.spi.InjectionPoint;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import org.reflection_no_reflection.runtime.BaseReflector;
 
 /**
  * Sets an injectable field.
@@ -52,7 +55,16 @@ final class SingleFieldInjector implements SingleMemberInjector {
     Dependency previous = context.pushDependency(dependency, binding.getSource());
     try {
       Object value = binding.getInternalFactory().get(errors, context, dependency, false);
-      field.set(o, value);
+        BaseReflector reflector = injectionPoint.getReflector();
+        if(reflector!=null) {
+            if (!field.getType().isPrimitive()) {
+                reflector.setObjectField(o, field.getName(), value);
+            }
+            System.out.println("field set via reflector");
+        } else {
+            System.out.println("falling back on reflection");
+            field.set(o, value);
+        }
     } catch (ErrorsException e) {
       errors.withSource(injectionPoint).merge(e.getErrors());
     } catch (IllegalAccessException e) {
