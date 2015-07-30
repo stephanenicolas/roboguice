@@ -60,9 +60,7 @@ final class SingleFieldInjector implements SingleMemberInjector {
             if (!field.getType().isPrimitive()) {
                 reflector.setObjectField(o, field.getName(), value);
             }
-            System.out.println("field set via reflector");
         } else {
-            System.out.println("falling back on reflection");
             field.set(o, value);
         }
     } catch (ErrorsException e) {

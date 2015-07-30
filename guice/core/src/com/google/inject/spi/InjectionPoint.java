@@ -220,11 +220,21 @@ public final class InjectionPoint {
         return new InjectionPoint(declaringType, constructor, initReflector(declaringType));
     }
 
+    static Map<Class, BaseReflector> map = new HashMap<Class, BaseReflector>();
     private static BaseReflector initReflector(TypeLiteral<?> declaringType) {
+        if (!declaringType.getRawType().getName().startsWith("org.roboguice.astroboy.activity")) {
+            return null;
+        }
+        Class c = declaringType.getRawType();
+        BaseReflector baseReflector = map.get(c);
+        if (baseReflector != null) {
+            return baseReflector;
+        }
         try {
-            Class c = declaringType.getRawType();
             Class reflectorClass = Class.forName(c.getName()+"$$Reflector");
-            return (BaseReflector) reflectorClass.newInstance();
+            BaseReflector reflector = (BaseReflector) reflectorClass.newInstance();
+            map.put(c, reflector);
+            return reflector;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Reflector could not be created for type " + declaringType);

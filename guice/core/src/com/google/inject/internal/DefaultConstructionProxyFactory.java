@@ -82,6 +82,9 @@ final class DefaultConstructionProxyFactory<T> implements ConstructionProxyFacto
 
     return new ConstructionProxy<T>() {
       public T newInstance(Object... arguments) throws InvocationTargetException {
+          if (injectionPoint.getReflector() != null) {
+              return (T) injectionPoint.getReflector().newInstance("public class org.roboguice.astroboy.activity."+injectionPoint.getDeclaringType().getRawType().getSimpleName()+"()", arguments);
+          }
         try {
           return constructor.newInstance(arguments);
         } catch (InstantiationException e) {
