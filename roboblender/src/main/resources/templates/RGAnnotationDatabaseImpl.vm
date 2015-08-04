@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import com.google.inject.AnnotationDatabase;
+import org.reflection_no_reflection.runtime.BaseReflector;
+
 #if( $isUsingFragmentUtil )
 import roboguice.fragment.FragmentUtil;
 #end
@@ -119,5 +121,11 @@ public class AnnotationDatabaseImpl extends AnnotationDatabase {
         }
 #end
     }
+
+      public void fillMapClassToReflector(HashMap<String, BaseReflector> mapClassToReflector) {
+#foreach( $className in $mapClassToReflector.keySet())
+            mapClassToReflector.put("$className", $mapClassToReflector.get($className));
+#end
+        }
 
 }

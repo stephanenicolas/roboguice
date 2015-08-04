@@ -29,6 +29,7 @@ public class AnnotationDatabaseGenerator {
     private HashMap<String, Map<String, Set<String>>> mapAnnotationToMapClassWithInjectionNameToConstructorSet;
     private HashSet<String> classesContainingInjectionPointsSet;
     private HashSet<String> bindableClasses;
+    private HashMap<String, String> mapClassToReflector;
 
     public void generateAnnotationDatabase(JavaFileObject jfo) throws IOException {
 
@@ -68,6 +69,7 @@ public class AnnotationDatabaseGenerator {
         context.put("mapAnnotationToMapClassWithInjectionNameToMethodSet", mapAnnotationToMapClassWithInjectionNameToMethodSet);
         context.put("mapAnnotationToMapClassWithInjectionNameToConstructorSet", mapAnnotationToMapClassWithInjectionNameToConstructorSet);
         context.put("classesContainingInjectionPointsSet", classesContainingInjectionPointsSet);
+        context.put("mapClassToReflector", mapClassToReflector);
         context.put("injectedClasses", bindableClasses);
         return context;
     }
@@ -126,5 +128,9 @@ public class AnnotationDatabaseGenerator {
 
     public void setBindableClasses(HashSet<String> bindableClasses) {
         this.bindableClasses = bindableClasses;
+    }
+
+    public void setMapClassToReflector(HashMap<String, String> mapClassToReflector) {
+        this.mapClassToReflector = mapClassToReflector;
     }
 }

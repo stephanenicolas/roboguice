@@ -109,7 +109,7 @@ public final class InjectionPoint {
         errors.throwConfigurationExceptionIfErrorsExist();
 
         dependencies = ImmutableList.<Dependency<?>>of(
-                newDependency(key, Nullability.allowsNull(annotations), -1));
+            newDependency(key, Nullability.allowsNull(annotations), -1));
     }
 
 
@@ -226,20 +226,9 @@ public final class InjectionPoint {
             return null;
         }
         Class c = declaringType.getRawType();
-        BaseReflector baseReflector = map.get(c);
-        if (baseReflector != null) {
-            return baseReflector;
-        }
-        try {
-            Class reflectorClass = Class.forName(c.getName()+"$$Reflector");
-            BaseReflector reflector = (BaseReflector) reflectorClass.newInstance();
-            map.put(c, reflector);
-            return reflector;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Reflector could not be created for type " + declaringType);
-            return null;
-        }
+        final BaseReflector baseReflector = Guice.getAnnotationDatabaseFinder().getMapClassToReflector().get(c.getName());
+        System.out.println("Reflector for type " + declaringType + ": " + baseReflector);
+        return baseReflector;
     }
 
     /**

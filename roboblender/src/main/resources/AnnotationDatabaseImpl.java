@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import com.google.inject.AnnotationDatabase;
+import org.reflection_no_reflection.runtime.BaseReflector;
 
 public class AnnotationDatabaseImpl extends AnnotationDatabase {
 
@@ -91,6 +92,12 @@ public class AnnotationDatabaseImpl extends AnnotationDatabase {
     public void fillInjectableClasses(HashSet<String> injectedClasses) {
 #foreach( $className in $injectedClasses )
         injectedClasses.add("$className");
+#end
+    }
+
+    public void fillMapClassToReflector(HashMap<String, BaseReflector> injectedClasses) {
+#foreach( $className in mapClassToReflector.keySet())
+        mapClassToReflector.put("$className", $mapClassToReflector.get($className));
 #end
     }
 

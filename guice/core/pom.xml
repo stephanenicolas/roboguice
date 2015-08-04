@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>org.reflection_no_reflection</groupId>
-      <artifactId>generator</artifactId>
+      <artifactId>common-lib</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>

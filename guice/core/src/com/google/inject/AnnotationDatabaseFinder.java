@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.reflection_no_reflection.runtime.BaseReflector;
 
 /**
  * Finds all annotation databases. AnnotationDatabase can be generated using RoboGuice annotation compiler.
@@ -24,6 +25,8 @@ public class AnnotationDatabaseFinder {
     private HashMap<String, Map<String, Set<String>>> mapAnnotationToMapClassContainingInjectionToInjectedFieldSet = new HashMap<String, Map<String, Set<String>>>();
     private HashMap<String, Map<String, Set<String>>> mapAnnotationToMapClassContainingInjectionToInjectedMethodSet = new HashMap<String, Map<String, Set<String>>>();
     private HashMap<String, Map<String, Set<String>>> mapAnnotationToMapClassContainingInjectionToInjectedConstructorSet = new HashMap<String, Map<String, Set<String>>>();
+    private HashMap<String, BaseReflector> mapClassToReflector = new HashMap<String, BaseReflector>();
+
     private HashSet<String> bindableClassesSet = new HashSet<String>();
 
     public AnnotationDatabaseFinder(String[] additionalPackageNames) {
@@ -63,7 +66,12 @@ public class AnnotationDatabaseFinder {
     public HashMap<String, Map<String, Set<String>>> getMapAnnotationToMapClassContainingInjectionToInjectedConstructorSet() {
         return mapAnnotationToMapClassContainingInjectionToInjectedConstructorSet;
     }
-    
+
+    public HashMap<String, BaseReflector> getMapClassToReflector() {
+        return mapClassToReflector;
+    }
+
+
     public Set<String> getBindableClassesSet() {
         return bindableClassesSet;
     }
@@ -81,6 +89,7 @@ public class AnnotationDatabaseFinder {
         annotationDatabase.fillAnnotationClassesAndConstructors(mapAnnotationToMapClassContainingInjectionToInjectedConstructorSet);
         annotationDatabase.fillClassesContainingInjectionPointSet(classesContainingInjectionPointsSet);
         annotationDatabase.fillBindableClasses(bindableClassesSet);
+        annotationDatabase.fillMapClassToReflector(mapClassToReflector);
         //System.out.println(mapAnnotationToMapClassWithInjectionNameToMethodSet.toString());
     }
 

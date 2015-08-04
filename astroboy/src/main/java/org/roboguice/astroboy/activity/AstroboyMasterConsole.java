@@ -60,7 +60,7 @@ public class AstroboyMasterConsole extends Activity {
         ButterKnife.bind(this);
         RoboGuice.getInjector(this).injectMembers(this);
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             RoboGuice.getInjector(this).getInstance(A.class);
         }
         long end = System.currentTimeMillis();
